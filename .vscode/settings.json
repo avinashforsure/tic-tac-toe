@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "climits": "cpp",
+        "bitset": "cpp",
+        "set": "cpp",
+        "vector": "cpp",
+        "map": "cpp",
+        "ostream": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled",
+    "java.debug.settings.onBuildFailureProceed": true
+}

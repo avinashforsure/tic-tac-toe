@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rain</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            height: 100vh;
+            width: 100vw;
+            /* display: grid;
+            place-items: center; */
+            background-image:linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, 0.1)), url("https://wallpapers.com/images/featured/beautiful-scenery-wnxju2647uqrcccv.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+           
+        }
+        .container{
+            width: 100vw;
+            height: 100vh;
+            mix-blend-mode: overlay;
+            overlay: 120%;
+            
+            background-image: url("https://img.freepik.com/free-vector/vector-rain-isolated-transparent-background_433751-176.jpg?t=st=1747799954~exp=1747803554~hmac=8520e576089bb2ac98ad2585efaf6f7af2dcbb7849ed90a0ef14e8f99153602a&w=1800");
+animation: raining 1s linear infinite reverse;
+        }
+        @keyframes raining{
+            0%{
+                background-position: 0% 0%;
+            }
+            100%{
+                background-position: 10% 100%;
+                
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container"></div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        img{
+    height: 200px;
+   width: 200px;
+    position: absolute;
+    bottom: 85px;
+    animation: mariorun 3s linear alternate;
+    animation-delay: 1s;
+    animation-iteration-count :infinite;
+
+}
+@keyframes mariorun{
+    0%{
+        transform: translateX(0%);
+    }
+    100%{
+        transform: translateX(100vw);
+    }
+}
+    </style>
+</head>
+<body>
+    <span class="dom">This is my tom</span>
+    <link rel="stylesheet" href="mario.css">
+   
+    <img src="tom.gif" alt="tom">
+    
+   
+</body>
+
+</html>
+

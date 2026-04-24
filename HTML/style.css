@@ -1,0 +1,30 @@
+h4{
+    color: #b6543f;
+    font-size:45px;
+}
+.para{
+    color:rgba(17, 188, 34, 0.4);
+}
+
+/*#btn{
+   background-color: aqua;
+   color: yellow;
+}*/ 
+#btn:hover {
+background-color: pink;
+color: black;
+}
+span:hover{
+    color: pink;
+}
+body:hover{
+    color: rgba(255, reen, bl144ue, .9);
+}
+body{
+    background-color:hsl(12%, 0%, 4%);
+    background-image: url("https://img.freepik.com/free-vector/watercolor-rainbow-background-design_23-2149573252.jpg?semt=ais_hybrid&w=740");
+    background-repeat: no-repeat;
+    /*background-position: bottom right;    */
+    
+    background-size: 100% ;
+}

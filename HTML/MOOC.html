@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESD Quiz - Education for Sustainable Development</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --card: #1a2235;
+    --border: #2a3650;
+    --accent: #00d4aa;
+    --accent2: #4f8ef7;
+    --wrong: #ff4f6a;
+    --correct: #00d4aa;
+    --text: #e8edf8;
+    --muted: #6b7fa3;
+    --gold: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .hero {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0f1e35 50%, #0a1628 100%);
+    padding: 60px 20px 50px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,212,170,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #e8edf8 30%, #00d4aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p { font-size: 15px; color: var(--muted); max-width: 500px; margin: 0 auto 30px; line-height: 1.7; }
+
+  .nav-tabs {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 0 20px; flex-wrap: wrap;
+  }
+  .nav-tab {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--muted); padding: 8px 18px; border-radius: 20px;
+    cursor: pointer; font-size: 13px; font-family: 'Sora', sans-serif;
+    transition: all 0.2s; font-weight: 600;
+  }
+  .nav-tab:hover, .nav-tab.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #0a0e1a;
+  }
+  .nav-tab.random-tab.active { background: var(--gold); border-color: var(--gold); }
+  .nav-tab.random-tab { border-color: var(--gold); color: var(--gold); }
+
+  .main { max-width: 780px; margin: 0 auto; padding: 30px 16px 60px; }
+
+  .assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px; margin-bottom: 30px;
+  }
+  .asgn-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 14px;
+    cursor: pointer; text-align: center; transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .asgn-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,170,0.06), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .asgn-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .asgn-card:hover::before { opacity: 1; }
+  .asgn-card .num {
+    font-family: 'Space Mono', monospace; font-size: 22px;
+    font-weight: 700; color: var(--accent); display: block; margin-bottom: 6px;
+  }
+  .asgn-card .label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; }
+  .asgn-card .q-count { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  .quiz-section { display: none; }
+  .quiz-section.active { display: block; }
+
+  .quiz-header {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 24px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+    gap: 12px;
+  }
+  .quiz-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .quiz-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .progress-bar {
+    background: var(--border); border-radius: 4px; height: 6px;
+    margin-top: 12px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); border-radius: 4px;
+    transition: width 0.4s ease; width: 0%;
+  }
+  .score-pill {
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    color: var(--accent); padding: 6px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 700; font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .question-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+  .question-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 18px;
+  }
+  .q-num {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--accent); font-weight: 700; letter-spacing: 1px;
+    margin-bottom: 0;
+  }
+  .mark-important-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 6px 12px; border-radius: 8px;
+    cursor: pointer; font-size: 11px; font-family: 'Sora', sans-serif;
+    transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+  }
+  .mark-important-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .mark-important-btn.marked { border-color: var(--gold); color: var(--gold); background: rgba(251,191,36,0.1); }
+  .q-text { font-size: 15px; line-height: 1.65; color: var(--text); margin-bottom: 18px; font-weight: 400; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 13px 16px;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+    font-size: 14px; line-height: 1.5; color: var(--text);
+  }
+  .option:hover:not(.disabled) { border-color: var(--accent2); background: rgba(79,142,247,0.06); }
+  .option .opt-letter {
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    color: var(--muted); background: var(--border); border-radius: 6px;
+    padding: 3px 7px; flex-shrink: 0; margin-top: 1px;
+  }
+  .option.correct { border-color: var(--correct); background: rgba(0,212,170,0.08); }
+  .option.correct .opt-letter { background: var(--correct); color: #0a0e1a; }
+  .option.wrong { border-color: var(--wrong); background: rgba(255,79,106,0.08); }
+  .option.wrong .opt-letter { background: var(--wrong); color: #fff; }
+  .option.disabled { cursor: default; }
+  .option.show-correct { border-color: var(--correct); background: rgba(0,212,170,0.05); }
+  .option.show-correct .opt-letter { border: 1.5px solid var(--correct); color: var(--correct); }
+
+  .feedback {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    font-size: 13px; line-height: 1.6; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.25); color: var(--correct); }
+  .feedback.wrong-fb { background: rgba(255,79,106,0.08); border: 1px solid rgba(255,79,106,0.25); color: #ff8fa3; }
+  .feedback .correct-ans { color: var(--correct); font-weight: 600; }
+
+  .back-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-family: 'Sora', sans-serif;
+    transition: all 0.2s; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .back-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  .results-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 36px; text-align: center;
+  }
+  .results-icon { font-size: 48px; margin-bottom: 16px; }
+  .results-score { font-size: 52px; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent); }
+  .results-label { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+  .results-bar { background: var(--border); border-radius: 8px; height: 12px; margin: 20px 0; overflow: hidden; }
+  .results-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 8px; transition: width 0.8s ease; }
+  .retry-btn {
+    background: var(--accent); color: #0a0e1a; border: none;
+    padding: 12px 28px; border-radius: 10px; font-size: 14px;
+    font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif;
+    transition: opacity 0.2s; margin-top: 10px;
+  }
+  .retry-btn:hover { opacity: 0.85; }
+
+  .home-section { display: block; }
+
+  .random-info {
+    background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+    font-size: 13px; color: #fcd34d; line-height: 1.6;
+  }
+
+  footer {
+    text-align: center; padding: 30px 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  footer span { color: var(--accent); font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .hero { padding: 40px 16px 36px; }
+    .assignment-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .asgn-card { padding: 14px 10px; }
+    .asgn-card .num { font-size: 18px; }
+    .question-card { padding: 18px 16px; }
+    .quiz-header { padding: 16px; }
+    .option { padding: 11px 13px; font-size: 13px; }
+    .ak-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .ak-card { padding: 14px 10px; }
+    .ak-card .num { font-size: 18px; }
+    .ak-question { padding: 16px 14px; }
+  }
+
+  .ak-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px; margin-bottom: 10px;
+  }
+  .ak-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 14px;
+    cursor: pointer; text-align: center; transition: all 0.2s; position: relative;
+  }
+  .ak-card:hover { border-color: #a78bfa; transform: translateY(-2px); }
+  .ak-card .num { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: #a78bfa; display: block; margin-bottom: 6px; }
+  .ak-card .label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; }
+  .ak-card .q-count { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  #answers-view { display: none; }
+  .ak-header {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 24px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .ak-title { font-size: 17px; font-weight: 700; color: #a78bfa; }
+  .ak-subtitle { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .ak-question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 22px 18px; margin-bottom: 14px;
+  }
+  .ak-q-num { font-family: 'Space Mono', monospace; font-size: 11px; color: #a78bfa; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+  .ak-q-text { font-size: 15px; line-height: 1.65; color: var(--text); margin-bottom: 14px; }
+  .ak-options { display: flex; flex-direction: column; gap: 8px; }
+  .ak-option {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 11px 14px; border-radius: 10px;
+    border: 1.5px solid var(--border); font-size: 13.5px;
+    color: var(--muted); background: var(--surface); line-height: 1.5;
+  }
+  .ak-option.is-answer {
+    border-color: var(--correct); background: rgba(0,212,170,0.08);
+    color: var(--text);
+  }
+  .ak-option .ak-letter {
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    border-radius: 6px; padding: 3px 7px; flex-shrink: 0; margin-top: 1px;
+    background: var(--border); color: var(--muted);
+  }
+  .ak-option.is-answer .ak-letter { background: var(--correct); color: #0a0e1a; }
+  .ak-option .ak-answer-tag {
+    font-size: 11px; font-weight: 700; color: var(--correct);
+    font-family: 'Space Mono', monospace; margin-left: auto; flex-shrink: 0; padding-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">NPTEL · IIT Kharagpur</div>
+  <h1>Education for<br>Sustainable Development</h1>
+  <p>Practice all 12 weekly assignments or challenge yourself with a random mixed quiz.</p>
+</div>
+
+<div class="main">
+  <div id="home-view" class="home-section">
+    <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; align-items:center;">
+      <div style="font-size:13px; color:var(--muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Select Assignment</div>
+    </div>
+    <div class="assignment-grid" id="assignment-grid"></div>
+    <div style="margin-top:30px;">
+      <div style="font-size:13px; color:var(--muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:14px;">Challenge Mode</div>
+      <div class="asgn-card" id="random-card" onclick="startRandom()" style="text-align:left; display:flex; align-items:center; gap:16px; max-width:100%;">
+        <div>
+          <span style="font-family:'Space Mono',monospace; font-size:28px; font-weight:700; color:var(--gold);">25Q</span>
+        </div>
+        <div>
+          <div style="font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px;">Random Mixed Quiz</div>
+          <div style="font-size:12px; color:var(--muted);">25 random questions · minimum 2 from each assignment</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:36px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <div style="font-size:13px; color:var(--muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Skip to Answers</div>
+        <div style="height:1px; flex:1; background:var(--border);"></div>
+        <div style="font-size:11px; color:#a78bfa; font-family:'Space Mono',monospace; font-weight:700;">ANSWER KEY</div>
+      </div>
+      <div style="background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.18); border-radius:12px; padding:13px 16px; margin-bottom:16px; font-size:13px; color:#c4b5fd; line-height:1.6;">
+        View all questions with correct answers highlighted in green. Pick an assignment below to browse its full answer key.
+      </div>
+      <div class="ak-grid" id="ak-grid"></div>
+    </div>
+
+    <div id="marked-questions-section" style="margin-top:36px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <div style="font-size:13px; color:var(--muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">My Important Questions</div>
+        <div style="height:1px; flex:1; background:var(--border);"></div>
+        <div style="font-size:11px; color:#fbbf24; font-family:'Space Mono',monospace; font-weight:700;">MARKED FOR REVIEW</div>
+      </div>
+      <div id="marked-questions-container">
+        <div style="background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.18); border-radius:12px; padding:20px 16px; text-align:center; font-size:13px; color:#fcd34d; line-height:1.6;">
+          No questions marked as important yet. Mark questions during practice to see them here.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="answers-view" style="display:none;">
+    <button class="back-btn" onclick="goHome()">&#8592; Back to Home</button>
+    <div class="ak-header">
+      <div style="flex:1; min-width:0;">
+        <div class="ak-title" id="ak-title"></div>
+        <div class="ak-subtitle" id="ak-subtitle"></div>
+      </div>
+      <div style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.3); color:#a78bfa; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; font-family:'Space Mono',monospace; white-space:nowrap; flex-shrink:0;">ANSWER KEY</div>
+    </div>
+    <div id="ak-questions-container"></div>
+  </div>
+
+  <div id="marked-view" style="display:none;">
+    <button class="back-btn" onclick="goHome()">&#8592; Back to Home</button>
+    <div class="ak-header">
+      <div style="flex:1; min-width:0;">
+        <div class="ak-title">My Important Questions</div>
+        <div class="ak-subtitle" id="marked-subtitle">Questions marked for review</div>
+      </div>
+      <div style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; font-family:'Space Mono',monospace; white-space:nowrap; flex-shrink:0;">MARKED QUESTIONS</div>
+    </div>
+    <div id="marked-questions-list"></div>
+  </div>
+
+  <div id="quiz-view" style="display:none;">
+    <button class="back-btn" onclick="goHome()">&#8592; Back to Assignments</button>
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-title" id="quiz-title"></div>
+        <div class="quiz-meta" id="quiz-meta"></div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="score-pill" id="score-pill">0 / 0</div>
+    </div>
+    <div id="questions-container"></div>
+    <div id="results-container" style="display:none;"></div>
+  </div>
+</div>
+
+<footer>Created by <span>LTSyles</span></footer>
+
+<script>
+const ASSIGNMENTS = {
+  1: {
+    title: "Assignment 1",
+    topic: "SDGs, Poverty & Forests",
+    questions: [
+      { q: "The Global Goals were adopted by all United Nations member states in ___ as a universal call to action to end poverty, protect the planet and ensure that all people enjoy peace and prosperity by ___.", options: ["2025, 2080","2020, 2060","2012, 2050","2015, 2030"], answer: 3 },
+      { q: "Which of the following is true?", options: ["The SDGs are a bold commitment to solely increase the GDP of India","Dealing with climate change has no impact on gender equality","Success in one SDG affects success of the others","Only 14 out of the 17 SDGs are interconnected"], answer: 2 },
+      { q: "In June 1992, at the Earth Summit in Rio de Janeiro, Brazil, more than 178 countries adopted ___.", options: ["Agenda 21","Millennium Development Goals","Agenda 51","Sustainable Development Goals"], answer: 0 },
+      { q: "Brundtland Report was released in 1987 by the WCED. WCED stands for ___.", options: ["World Commission on Environment Degradation","World Commission on Environment and Development","World Committee on Environmental Depletion","World Commission on Earth Development"], answer: 1 },
+      { q: "Extreme poverty means living on less than ___ a day.", options: ["$1.25","$4.25","$10.25","$100.25"], answer: 0 },
+      { q: "___ poverty measures reveal who is poor and how they are poor.", options: ["Unidimensional","Bidirectional","Multidimensional","Multidirectional"], answer: 2 },
+      { q: "SDG 2 aims end all forms of ___ by 2030.", options: ["crime","hunger and malnutrition","pollution","drought"], answer: 1 },
+      { q: "Which of the following is not one of the indicators of the Global Hunger Index?", options: ["prevalence of wasting and stunting in children under 5 years","under 5 child mortality rate","proportion of undernourished in the population","proportion of obese people in the population"], answer: 3 },
+      { q: "As per Ministry of Housing and Urban Affairs, 135 litre per capita per day (lpcd) has been suggested as the benchmark for urban water supply. For rural areas, a minimum service delivery of 55 lpcd has been fixed under___.", options: ["Jal Jeevan Mission","Jal Shakti Mission","Jal Protection Mission","Jal Janta Mission"], answer: 0 },
+      { q: "Forests cover about ___ percent of the Earth's surface.", options: ["5","85","30","50"], answer: 2 }
+    ]
+  },
+  2: {
+    title: "Assignment 2",
+    topic: "ESD Framework & Human Rights",
+    questions: [
+      { q: "Which of the following is a characteristic of ESD as described in the framework?", options: ["It is not locally relevant","It promotes learning only for children","It is interdisciplinary","It uses only two pedagogical techniques"], answer: 2 },
+      { q: "The Declaration on the Right to Development (1986) established that everyone is entitled to participate in and enjoy:", options: ["only economic and social development","economic, political, psychological and communist development","economic, social, cultural and political development","only cultural development"], answer: 2 },
+      { q: "Text based methods for assessing ESD programs can be improved by using ___.", options: ["interpretive methodologies","strict curriculum","only quantitative techniques","only qualitative methods"], answer: 0 },
+      { q: "SDGs are for the following except ___.", options: ["people","practice","planet","partnership"], answer: 1 },
+      { q: "Policies like employment and labor rights, care and family leaves, and financial regulation are often called the ___ policies.", options: ["post-regulation","self-care","forceful","pre-distributive"], answer: 3 },
+      { q: "Which of the following is involved in the development of the HRE indicator framework to measure progress on national implementation of human rights education?", options: ["Danish Institute of Human Rights","The Office of the High Commissioner for Human Rights","Both A and B","Neither A nor B"], answer: 2 },
+      { q: "___ plays a role in peace education.", options: ["schools","parents","community","all the given"], answer: 3 },
+      { q: "The enterprise of education at its most profound level is ___.", options: ["discriminatory","selective","restricted","transformative"], answer: 3 },
+      { q: "UNESCO's World in 2030 survey revealed that respondents see ___ as one of the top global challenges.", options: ["climate change","hunger","unemployment","mental health"], answer: 0 },
+      { q: "Education for sustainable development and peace develops people's skills to take actions that improve our quality of life___.", options: ["only now","only for the future","for now and for the future","only for the past"], answer: 2 }
+    ]
+  },
+  3: {
+    title: "Assignment 3",
+    topic: "Global Citizenship & Green Jobs",
+    questions: [
+      { q: "Global citizenship is a belief that individuals are members of ___ networks.", options: ["multiple","diverse","local and non-local","all of the given"], answer: 3 },
+      { q: "A global citizen ___.", options: ["is not aware of the wider world","is confused about their place in the world","takes an active role in their community","do not care much about the planet"], answer: 2 },
+      { q: "Global citizenship education is based on ___ domains of learning.", options: ["three","two","four","seven"], answer: 0 },
+      { q: "___ is UNESCO's first Category 1 education-related institute in the Asia-Pacific region.", options: ["MGEIN","MGIER","MGIEP","MGOEL"], answer: 2 },
+      { q: "SDG target 4.7 rearticulates a ___ agenda for education.", options: ["regional","behavioral","political","humanistic"], answer: 3 },
+      { q: "SEL stands for ___.", options: ["Sustainable education and learning","Social and environmental learning","Social and emotional learning","Sustainable and economic learning"], answer: 2 },
+      { q: "Which of the following is a role taken by a teacher in education for sustainable development?", options: ["facilitator","guide","role model","all of the given"], answer: 3 },
+      { q: "Target ___ calls for strengthening efforts to protect and safeguard the world's cultural and natural heritage.", options: ["9.5","1.5","2.3","11.4"], answer: 3 },
+      { q: "The UNESCO International Centre for Technical and Vocational Education and Training enables ___ in member states.", options: ["green TVET","blue TVET","orange TVET","white TVET"], answer: 0 },
+      { q: "Which of the following statements is not true?", options: ["green jobs contribute to preserving environmental quality","green jobs ensure workers' rights","green jobs are only found in the agriculture sector","green jobs must be accessible to all"], answer: 2 }
+    ]
+  },
+  4: {
+    title: "Assignment 4",
+    topic: "Green Skills & Sustainable Health",
+    questions: [
+      { q: "GESO stands for ___.", options: ["Green Education for Sustainable Occupation","Green Enhanced Sustainable Occupation","Green Enhanced Skills Occupation","None of the above"], answer: 2 },
+      { q: "The classification of occupations into GIDO, GESO and GNEO is given by US National Center for ___.", options: ["G*NET","A*NET","I*NET","O*NET"], answer: 3 },
+      { q: "The International Framework for Greening TVET consists of the following tiers, except ___.", options: ["Breaking TVET institutions","Transforming TVET institutions","Formulating National Policies","Forming International Alliance"], answer: 0 },
+      { q: "Energy, water and waste management comes under the ___ dimension of Greening TVET.", options: ["Green research","Green culture","Green teaching","Green campus"], answer: 3 },
+      { q: "Industry-institute interaction is an indicator of ___.", options: ["green house","green teaching","green campus","green curriculum"], answer: 3 },
+      { q: "Sustainable entrepreneurship includes ___.", options: ["social entrepreneurship","eco-preneurship","intra-preneurship","all of the given"], answer: 3 },
+      { q: "ESD requires ___ learning methods.", options: ["participatory","passive","rigid","static"], answer: 0 },
+      { q: "Which of the following is a transversal competency?", options: ["creativity","empathy","systems thinking","all of the given"], answer: 3 },
+      { q: "___ is the ability to create good relationships and adapt to different social situations.", options: ["emotional fitness","mental health","social health","physical health"], answer: 2 },
+      { q: "Sustainable health is ___.", options: ["a curative approach","only about the body","a balance of mind, body and spirit","only about mental health"], answer: 2 }
+    ]
+  },
+  5: {
+    title: "Assignment 5",
+    topic: "Healthcare & Food Security",
+    questions: [
+      { q: "Siddha comes under the ___.", options: ["public health sector","voluntary health agencies","indigenous system of medicine","private health sector"], answer: 2 },
+      { q: "Which of the following is not a problem of healthcare infrastructure in India?", options: ["shortage of staff","skewed favor to urban areas","no proper regulatory mechanism","standard procedures in all regions"], answer: 3 },
+      { q: "Which of the following is a health system building block as suggested by WHO?", options: ["Economic growth","Access to public transport","Politics","Service delivery"], answer: 3 },
+      { q: "An ecologically sustainable approach broadens the definition of ___.", options: ["objective","outcome","cost","value"], answer: 3 },
+      { q: "A ___ is an environment in which data of medical interest can be stored and made easily available.", options: ["health repository","health bank","health bag","health grid"], answer: 3 },
+      { q: "The POSHAN Abhiyan in India aims to improve nutritional outcomes for ___.", options: ["children","lactating mothers","pregnant women","all of the given"], answer: 3 },
+      { q: "Sus-QI stands for ___.", options: ["Sustainable quality improvement","Sustainable quality improvisation","Sustainable quantity improvement","Sustainable quantity improvisation"], answer: 0 },
+      { q: "Which of the following is not a stage of Sus-QI?", options: ["set goals","measure impacts","design the improvement effort","ignore the system"], answer: 3 },
+      { q: "Food insecurity is measured on the ___.", options: ["FIES","FAIS","FIET","FAIR"], answer: 0 },
+      { q: "The UN lists ___ levels of food security for any given country.", options: ["5","4","3","2"], answer: 0 }
+    ]
+  },
+  6: {
+    title: "Assignment 6",
+    topic: "Hunger, Food & Agriculture",
+    questions: [
+      { q: "Poor infrastructure can cause hunger in a country.", options: ["True","False"], answer: 0 },
+      { q: "In high income countries, hunger is mainly caused due to poverty that results from ___.", options: ["low GDP of the country","lack of access to food","poor public transport infrastructure","lack of jobs"], answer: 3 },
+      { q: "Which of the following is true about hunger?", options: ["It is a cause of war","It is an effect of war","It is both a cause and effect of war","It is neither a cause nor an effect of war"], answer: 2 },
+      { q: "___ are most vulnerable to the harmful effects of hidden hunger.", options: ["adults","infants","adolescents","elderly"], answer: 1 },
+      { q: "Desertification is typically a result of ___.", options: ["drought","deforestation","inappropriate agriculture","all of the given"], answer: 3 },
+      { q: "Which of the following is a key initiative in India for the problem of hunger?", options: ["One Nation, One Plate","One Nation, One Hunger","One Nation, No Ration Card","One Nation, One Ration Card"], answer: 3 },
+      { q: "In the past, MGNREGA has ___.", options: ["decreased rural wages","increased gender wage gaps","enabled poor access to food","reduced distress migration from rural areas"], answer: 3 },
+      { q: "Wheat productivity can suffer if ___.", options: ["temperature rises","temperature does not change","temperature falls","none of the given"], answer: 0 },
+      { q: "Bringing forgotten and neglected foods like yam into cultivation and onto the market is called ___.", options: ["diversifying food basket","restricting food basket","completing food box","wasting food basket"], answer: 0 },
+      { q: "Home gardening has been proven as a reliable source to supplement food and nutritional security at the household level.", options: ["True","False"], answer: 0 }
+    ]
+  },
+  7: {
+    title: "Assignment 7",
+    topic: "Energy, Climate & Air Pollution",
+    questions: [
+      { q: "Which of the following is a type of energy?", options: ["fossil fuels","nuclear power","traditional biomass","all of the given"], answer: 3 },
+      { q: "In IPCC by UN, I stands for ___.", options: ["Industrial","Internal","International","Intergovernmental"], answer: 3 },
+      { q: "The extraction, transport and refinement of nuclear fuels results in ___.", options: ["improvement of land from mining","pollution of air and water","replenishment of biodiversity","all of the given"], answer: 1 },
+      { q: "The greatest contributor to air pollution in China is ___.", options: ["cooking and heating","coal burning","transport","forest burning"], answer: 1 },
+      { q: "In the wake of tsunami and nuclear disaster following severe earthquake in 2011, a city in Japan set a target for ___ by 2022.", options: ["hundred net energy","one net energy","million net energy","zero net energy"], answer: 3 },
+      { q: "The term 'energy democracy' grew out of the ___ movement.", options: ["hunger justice","hunger revolt","climate revolt","climate justice"], answer: 3 },
+      { q: "The Paris Agreement is a legally binding treaty on ___ adopted by 196 parties at COP 21 in 2015.", options: ["climate change","education","poverty","none of the given"], answer: 0 },
+      { q: "The Government of India launched the NAPCC in 2008 outlining ___ National Missions on climate change.", options: ["8","2","100","78"], answer: 0 },
+      { q: "Stubble burning usually takes place in the months of ___.", options: ["October-November","May-June","January-February","July-August"], answer: 0 },
+      { q: "Stubble burning is ___.", options: ["intentional","natural","healthy for air quality","related to burning of paper"], answer: 0 }
+    ]
+  },
+  8: {
+    title: "Assignment 8",
+    topic: "ESD Competencies & Learning",
+    questions: [
+      { q: "The Okayama Commitment is from ___.", options: ["Russia","South Korea","North Korea","Japan"], answer: 3 },
+      { q: "Which of the following is a policy support mechanism of Okayama Commitment?", options: ["Taking money","Content development","Exploitation of resources","None of the given"], answer: 1 },
+      { q: "Education is related to SDG 9 such that ___.", options: ["education helps in skills required to build resilient infrastructure","education enhances skills to use natural resources more sustainably","education is critical to lifting people out of poverty","education helps reduce gender gaps"], answer: 0 },
+      { q: "The frame model structures sustainability competencies into ___ goal dimensions.", options: ["8","3","11","45"], answer: 1 },
+      { q: "Sustainability issues must be looked at through a ___ approach.", options: ["isolated thinking","independent thinking","silos thinking","systems thinking"], answer: 3 },
+      { q: "Technology and Science can alone solve all our sustainability problems.", options: ["True","False"], answer: 1 },
+      { q: "GAP in the context of ESD stands for ___.", options: ["Global Action Programme","Great Activity Plan","Global Attention Programme","Great Action Policy"], answer: 0 },
+      { q: "___ competency is the ability to understand and evaluate multiple futures.", options: ["anticipatory","normative","strategic","collaborative"], answer: 0 },
+      { q: "The ability to question norms is ___ competency.", options: ["critical thinking","normative","anticipatory","self-awareness"], answer: 0 },
+      { q: "Action-oriented learning draws on Kolb's concept of ___.", options: ["experiential learning","experimental learning","rote learning","direct learning"], answer: 0 }
+    ]
+  },
+  9: {
+    title: "Assignment 9",
+    topic: "Pedagogical Methods & Learning",
+    questions: [
+      { q: "Activities like fish bowl discussion help ___.", options: ["passive thinking","critical and reflexive thinking","rote-memory","all of the given"], answer: 1 },
+      { q: "Which of the following is not a vision-building exercise?", options: ["scenario analysis","classroom teaching","science fiction thinking","dystopian storytelling"], answer: 1 },
+      { q: "The ability to hold contradictory thoughts and feelings is an ___ competency.", options: ["intellectual","interpersonal","intrapersonal","institutional"], answer: 2 },
+      { q: "___ intelligences is proposed by Howard Gardner.", options: ["multiple","singular","double","triple"], answer: 0 },
+      { q: "___ intelligence refers to using one's body in skilled ways.", options: ["kinesthetic","musical","naturalist","spatial"], answer: 0 },
+      { q: "The idea of big transformation implies that changes in individual action are intertwined with ___.", options: ["reorganization of self","reorganization of societal structures","ignorance of others","none of the given"], answer: 1 },
+      { q: "In ___ learning, learners start to question all the things they knew to make room for new insights and information.", options: ["transformative","transactional","trivial","trans-disciplinary"], answer: 0 },
+      { q: "Which of the following is a key principle of adult education?", options: ["need to know why","guilt","boredom","none of the given"], answer: 0 },
+      { q: "___ Sustainable Development is a process through which people influence and share control over development initiatives, decisions and resources that affects them.", options: ["Internal","Societal","Participatory","Transformational"], answer: 2 },
+      { q: "___ is the common regulatory body for higher education in India.", options: ["HECI","WHO","AIIMS","None of the given"], answer: 0 }
+    ]
+  },
+  10: {
+    title: "Assignment 10",
+    topic: "Sustainable Leadership",
+    questions: [
+      { q: "Sustainable leaders look at immediate, short-term gains.", options: ["True","False"], answer: 1 },
+      { q: "The need of the hour is to have leaders who ___.", options: ["focus only on business profit","focus only on building technical solutions","take a holistic approach","none of the given"], answer: 2 },
+      { q: "Which of the following is a part of the 3Ps of triple bottom line?", options: ["Profit","Passion","Party","Pivot"], answer: 0 },
+      { q: "Organizations need leaders who create value for ___.", options: ["internal stakeholders","external stakeholders","oneself","all stakeholders"], answer: 3 },
+      { q: "The sustainability mindset involves ___.", options: ["transparency","presencing","integrity","all of the given"], answer: 3 },
+      { q: "Finding ways to maintain one's own and others' energy is an unsustainable leadership practice.", options: ["True","False"], answer: 1 },
+      { q: "Systems thinking is often highlighted by the ability to ___.", options: ["zoom in","zoom out","zoom in and out","none of the given"], answer: 2 },
+      { q: "Practicing consciousness awareness includes ___.", options: ["ignoring self with others","forgetting about what has happened and moving on","living in denial","authentic interactions"], answer: 3 },
+      { q: "Leadership ___ is the last challenge of leadership; of letting go, moving on, and planning for one's own obsolescence.", options: ["succession","regression","formation","integration"], answer: 0 },
+      { q: "___ leadership is also called missionary leadership and is different from quiet leadership.", options: ["participative","servant","radical","inspirational"], answer: 2 }
+    ]
+  },
+  11: {
+    title: "Assignment 11",
+    topic: "Global Leadership & SDG 11",
+    questions: [
+      { q: "There is one universal curriculum to become a sustainable leader.", options: ["True","False"], answer: 1 },
+      { q: "A sustainable leader has a ___ decision-making style.", options: ["forceful","autocratic","selfish","consensual"], answer: 3 },
+      { q: "A sustainable leader must have awareness of ___ contexts.", options: ["ecological","economic","political","all of the given"], answer: 3 },
+      { q: "The 'results' component of sustainable leadership relates with the ___ dimension.", options: ["institutional","social","environmental","economic"], answer: 3 },
+      { q: "___ India gives a theory U that consists of aspects like co-initiating, co-sensing and co-evolving among others.", options: ["HEAD","SAID","GEAD","LEAD"], answer: 3 },
+      { q: "The ___ component in theory 'U' entails prototyping the new.", options: ["co-evolving","co-initiating","co-sensing","co-creating"], answer: 3 },
+      { q: "Which of the following factor does not aid in becoming a global leader?", options: ["willingness to stay in one's comfort zone","undesirable circumstances like poverty","confidence to embrace risk","willingness to learn from failure"], answer: 0 },
+      { q: "According to Maxwell, there are ___ levels of leadership.", options: ["15","25","50","5"], answer: 3 },
+      { q: "The ___, in relation to their Global Leadership Fellowship program, describes global leaders as dynamic, engaged and driven individuals.", options: ["World Health Organization","World Labor Organization","World Economic Forum","World Political Forum"], answer: 2 },
+      { q: "SDG ___ is to make cities and human settlements inclusive, safe, resilient, and sustainable.", options: ["2","10","11","5"], answer: 2 }
+    ]
+  },
+  12: {
+    title: "Assignment 12",
+    topic: "Natural Resources & Sustainability",
+    questions: [
+      { q: "___ resources are those that exist in the absence of human intervention.", options: ["Artificial","Natural","Fake","Real"], answer: 1 },
+      { q: "The food sector accounts for around ___ percent of total greenhouse gas emissions.", options: ["3","22","100","90"], answer: 1 },
+      { q: "Which of the following is not a solution for natural resource depletion?", options: ["use less renewable energy","promote sustainable fishing growth","reduce food waste","treat wastewater before discharging"], answer: 0 },
+      { q: "In order to support reform on green fiscal policy, UN Environment has established the ___ in partnership with the International Monetary Fund.", options: ["Green Fiscal Policy Network","Blue Fiscal Policy Network","Green Fishery Policy Network","Green Fiscal Policy Natural"], answer: 0 },
+      { q: "As responsible consumers, we should ask ourselves \"___\" before buying anything.", options: ["do I really need it?","how long will I use it?","can I borrow it from someone I know?","all of the given"], answer: 3 },
+      { q: "A bulb thrown out after usage forms ___.", options: ["wet waste","valuable waste","responsible waste","e-waste"], answer: 3 },
+      { q: "SDG ___ seeks to promote international trade, and help developing countries increase their exports to ensure a universal rules-based and equitable trading system that is fair, open and beneficial to all.", options: ["17","2","6","11"], answer: 0 },
+      { q: "According to Gandhiji, wealth should be used for ___.", options: ["the betterment of the humanity","personal indulgence","conflicts","politics"], answer: 0 },
+      { q: "The ___ initiated and spearheaded by Gandhiji is the preeminent prototype of small and cottage industries.", options: ["Khadi Movement","Salt March","Cotton Movement","Non-violent Protest"], answer: 0 },
+      { q: "___ is the ability of a system to absorb disturbances & retain its basic function and structure.", options: ["resilience","gratitude","mindfulness","sustainable consumption"], answer: 0 }
+    ]
+  }
+};
+
+const LETTERS = ['A', 'B', 'C', 'D'];
+let currentAnswers = {};
+let currentScore = 0;
+let currentTotal = 0;
+let currentMode = null;
+let currentQuestions = [];
+let markedQuestions = JSON.parse(localStorage.getItem('markedQuestions') || '[]');
+
+function buildGrid() {
+  const grid = document.getElementById('assignment-grid');
+  for (let i = 1; i <= 12; i++) {
+    const a = ASSIGNMENTS[i];
+    const div = document.createElement('div');
+    div.className = 'asgn-card';
+    div.innerHTML = `<span class="num">${String(i).padStart(2,'0')}</span>
+      <div class="label">${a.title}</div>
+      <div class="q-count">${a.questions.length} questions</div>`;
+    div.onclick = () => startAssignment(i);
+    grid.appendChild(div);
+  }
+}
+
+function startAssignment(num) {
+  const a = ASSIGNMENTS[num];
+  currentMode = 'assignment';
+  currentQuestions = a.questions.map((q, i) => ({ ...q, assignmentNum: num, idx: i }));
+  launchQuiz(a.title, a.topic, currentQuestions);
+}
+
+function startRandom() {
+  currentMode = 'random';
+  let pool = [];
+  const perAssignment = {};
+  for (let i = 1; i <= 12; i++) perAssignment[i] = [];
+
+  for (let i = 1; i <= 12; i++) {
+    const qs = ASSIGNMENTS[i].questions.map((q, idx) => ({ ...q, assignmentNum: i, idx }));
+    const shuffled = qs.sort(() => Math.random() - 0.5);
+    perAssignment[i] = shuffled.slice(0, 2);
+  }
+
+  pool = Object.values(perAssignment).flat();
+  const remaining = [];
+  for (let i = 1; i <= 12; i++) {
+    const qs = ASSIGNMENTS[i].questions.map((q, idx) => ({ ...q, assignmentNum: i, idx }));
+    const used = perAssignment[i].map(q => q.idx);
+    remaining.push(...qs.filter(q => !used.includes(q.idx)));
+  }
+  remaining.sort(() => Math.random() - 0.5);
+  pool.push(...remaining.slice(0, 25 - pool.length));
+  pool.sort(() => Math.random() - 0.5);
+
+  currentQuestions = pool;
+  launchQuiz('Random Mixed Quiz', '25 questions from all 12 assignments', pool);
+}
+
+function launchQuiz(title, meta, questions) {
+  currentAnswers = {};
+  currentScore = 0;
+  currentTotal = questions.length;
+
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('quiz-view').style.display = 'block';
+  history.pushState({ page: 'quiz' }, '');
+  document.getElementById('quiz-title').textContent = title;
+  document.getElementById('quiz-meta').textContent = meta;
+  document.getElementById('score-pill').textContent = `0 / ${currentTotal}`;
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('results-container').style.display = 'none';
+
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  container.style.display = 'block';
+
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `qcard-${qi}`;
+
+    const label = currentMode === 'random'
+      ? `Q${qi+1} &nbsp;·&nbsp; Assignment ${q.assignmentNum}`
+      : `Q${qi+1}`;
+
+    let opts = '';
+    q.options.forEach((opt, oi) => {
+      opts += `<div class="option" id="opt-${qi}-${oi}" onclick="selectOption(${qi}, ${oi})">
+        <span class="opt-letter">${LETTERS[oi]}</span>
+        <span>${opt}</span>
+      </div>`;
+    });
+
+    const isMarked = markedQuestions.some(mq => mq.assignmentNum === q.assignmentNum && mq.idx === q.idx);
+
+    card.innerHTML = `
+      <div class="question-header">
+        <span class="q-num">${label}</span>
+        <button class="mark-important-btn ${isMarked ? 'marked' : ''}" onclick="toggleMarkQuestion(${q.assignmentNum}, ${q.idx}, ${qi})">
+          <i class="fas fa-star"></i> ${isMarked ? 'Marked' : 'Mark Important'}
+        </button>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${opts}</div>
+      <div class="feedback" id="fb-${qi}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qi, oi) {
+  if (currentAnswers[qi] !== undefined) return;
+  const q = currentQuestions[qi];
+  const isCorrect = oi === q.answer;
+
+  currentAnswers[qi] = oi;
+  if (isCorrect) currentScore++;
+
+  for (let i = 0; i < q.options.length; i++) {
+    const el = document.getElementById(`opt-${qi}-${i}`);
+    el.classList.add('disabled');
+    if (i === q.answer) el.classList.add('correct');
+    else if (i === oi && !isCorrect) el.classList.add('wrong');
+  }
+
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.classList.add('show');
+  if (isCorrect) {
+    fb.className = 'feedback show correct-fb';
+    fb.innerHTML = '&#10003; Correct!';
+  } else {
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = `&#10007; Incorrect. <span class="correct-ans">Correct answer: ${LETTERS[q.answer]}. ${q.options[q.answer]}</span>`;
+  }
+
+  const answered = Object.keys(currentAnswers).length;
+  const pct = (answered / currentTotal * 100).toFixed(0);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('score-pill').textContent = `${currentScore} / ${currentTotal}`;
+
+  if (answered === currentTotal) {
+    setTimeout(showResults, 800);
+  }
+}
+
+function showResults() {
+  document.getElementById('questions-container').style.display = 'none';
+  const rc = document.getElementById('results-container');
+  rc.style.display = 'block';
+  const pct = Math.round(currentScore / currentTotal * 100);
+  let emoji = pct >= 80 ? '🏆' : pct >= 60 ? '✨' : '📚';
+  let msg = pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Good effort!' : 'Keep practicing!';
+
+  rc.innerHTML = `<div class="results-card">
+    <div class="results-icon">${emoji}</div>
+    <div class="results-score">${currentScore}/${currentTotal}</div>
+    <div class="results-label">${msg} &nbsp;·&nbsp; ${pct}% correct</div>
+    <div class="results-bar"><div class="results-bar-fill" id="res-fill" style="width:0%"></div></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>`;
+
+  setTimeout(() => {
+    const fill = document.getElementById('res-fill');
+    if (fill) fill.style.width = pct + '%';
+  }, 100);
+}
+
+function retryQuiz() {
+  if (currentMode === 'random') {
+    startRandom();
+  } else {
+    const num = currentQuestions[0]?.assignmentNum;
+    if (num) startAssignment(num);
+  }
+}
+
+function goHome() {
+  document.getElementById('home-view').style.display = 'block';
+  document.getElementById('quiz-view').style.display = 'none';
+  document.getElementById('answers-view').style.display = 'none';
+  document.getElementById('marked-view').style.display = 'none';
+  history.pushState({ page: 'home' }, '');
+}
+
+function showQuizView() {
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('quiz-view').style.display = 'block';
+}
+
+function buildAnswerGrid() {
+  const grid = document.getElementById('ak-grid');
+  for (let i = 1; i <= 12; i++) {
+    const a = ASSIGNMENTS[i];
+    const div = document.createElement('div');
+    div.className = 'ak-card';
+    div.innerHTML = `<span class="num">${String(i).padStart(2,'0')}</span>
+      <div class="label">${a.title}</div>
+      <div class="q-count">${a.questions.length} answers</div>`;
+    div.onclick = () => openAnswerKey(i);
+    grid.appendChild(div);
+  }
+}
+
+function openAnswerKey(num) {
+  const a = ASSIGNMENTS[num];
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('answers-view').style.display = 'block';
+  history.pushState({ page: 'answers' }, '');
+
+  document.getElementById('ak-title').textContent = a.title + ' — Answer Key';
+  document.getElementById('ak-subtitle').textContent = a.topic + ' · ' + a.questions.length + ' questions';
+
+  const container = document.getElementById('ak-questions-container');
+  container.innerHTML = '';
+
+  a.questions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'ak-question';
+    let opts = '';
+    q.options.forEach((opt, oi) => {
+      const isAns = oi === q.answer;
+      opts += `<div class="ak-option${isAns ? ' is-answer' : ''}">
+        <span class="ak-letter">${LETTERS[oi]}</span>
+        <span style="flex:1;">${opt}</span>
+        ${isAns ? '<span class="ak-answer-tag">&#10003; Correct</span>' : ''}
+      </div>`;
+    });
+    div.innerHTML = `<span class="ak-q-num">Q${qi+1}</span>
+      <div class="ak-q-text">${q.q}</div>
+      <div class="ak-options">${opts}</div>`;
+    container.appendChild(div);
+  });
+  window.scrollTo(0, 0);
+}
+
+// Extend popstate to handle answers-view
+window.removeEventListener('popstate', window._popHandler);
+window._popHandler = function(e) {
+  const quizVisible = document.getElementById('quiz-view').style.display !== 'none';
+  const answersVisible = document.getElementById('answers-view').style.display !== 'none';
+  const markedVisible = document.getElementById('marked-view').style.display !== 'none';
+  if (quizVisible || answersVisible || markedVisible) {
+    document.getElementById('home-view').style.display = 'block';
+    document.getElementById('quiz-view').style.display = 'none';
+    document.getElementById('answers-view').style.display = 'none';
+    document.getElementById('marked-view').style.display = 'none';
+    history.pushState({ page: 'home' }, '');
+  }
+};
+window.addEventListener('popstate', window._popHandler);
+
+function toggleMarkQuestion(assignmentNum, idx, qi) {
+  const questionKey = `${assignmentNum}-${idx}`;
+  const existingIndex = markedQuestions.findIndex(mq => mq.assignmentNum === assignmentNum && mq.idx === idx);
+
+  if (existingIndex >= 0) {
+    // Remove from marked questions
+    markedQuestions.splice(existingIndex, 1);
+  } else {
+    // Add to marked questions
+    const question = ASSIGNMENTS[assignmentNum].questions[idx];
+    markedQuestions.push({
+      assignmentNum,
+      idx,
+      question: question.q,
+      options: question.options,
+      answer: question.answer,
+      assignmentTitle: ASSIGNMENTS[assignmentNum].title
+    });
+  }
+
+  // Save to localStorage
+  localStorage.setItem('markedQuestions', JSON.stringify(markedQuestions));
+
+  // Update button state
+  const btn = document.querySelector(`#qcard-${qi} .mark-important-btn`);
+  const isMarked = markedQuestions.some(mq => mq.assignmentNum === assignmentNum && mq.idx === idx);
+  btn.classList.toggle('marked', isMarked);
+  btn.innerHTML = `<i class="fas fa-star"></i> ${isMarked ? 'Marked' : 'Mark Important'}`;
+
+  // Update homepage display
+  updateMarkedQuestionsDisplay();
+}
+
+function updateMarkedQuestionsDisplay() {
+  const container = document.getElementById('marked-questions-container');
+
+  if (markedQuestions.length === 0) {
+    container.innerHTML = `
+      <div style="background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.18); border-radius:12px; padding:20px 16px; text-align:center; font-size:13px; color:#fcd34d; line-height:1.6;">
+        No questions marked as important yet. Mark questions during practice to see them here.
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  markedQuestions.forEach((mq, i) => {
+    html += `
+      <div class="asgn-card" style="text-align:left; display:flex; align-items:center; gap:16px; max-width:100%; margin-bottom:8px;" onclick="viewMarkedQuestions()">
+        <div>
+          <span style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:var(--gold);">${mq.assignmentNum}</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px;">${mq.assignmentTitle}</div>
+          <div style="font-size:12px; color:var(--muted);">Question ${mq.idx + 1} marked for review</div>
+        </div>
+        <div style="font-size:11px; color:var(--gold); font-family:'Space Mono',monospace; font-weight:700;">MARKED</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function viewMarkedQuestions() {
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('marked-view').style.display = 'block';
+  history.pushState({ page: 'marked' }, '');
+
+  document.getElementById('marked-subtitle').textContent = `${markedQuestions.length} question${markedQuestions.length !== 1 ? 's' : ''} marked for review`;
+
+  const container = document.getElementById('marked-questions-list');
+  container.innerHTML = '';
+
+  markedQuestions.forEach((mq, mi) => {
+    const div = document.createElement('div');
+    div.className = 'ak-question';
+    let opts = '';
+    mq.options.forEach((opt, oi) => {
+      const isAns = oi === mq.answer;
+      opts += `<div class="ak-option${isAns ? ' is-answer' : ''}">
+        <span class="ak-letter">${LETTERS[oi]}</span>
+        <span style="flex:1;">${opt}</span>
+        ${isAns ? '<span class="ak-answer-tag">&#10003; Correct</span>' : ''}
+      </div>`;
+    });
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+        <span class="ak-q-num">Assignment ${mq.assignmentNum} · Q${mq.idx + 1}</span>
+        <button class="mark-important-btn marked" onclick="removeMarkedQuestion(${mi})" style="font-size:10px; padding:4px 8px;">
+          <i class="fas fa-times"></i> Remove
+        </button>
+      </div>
+      <div class="ak-q-text">${mq.question}</div>
+      <div class="ak-options">${opts}</div>
+    `;
+    container.appendChild(div);
+  });
+  window.scrollTo(0, 0);
+}
+
+function removeMarkedQuestion(index) {
+  markedQuestions.splice(index, 1);
+  localStorage.setItem('markedQuestions', JSON.stringify(markedQuestions));
+  updateMarkedQuestionsDisplay();
+
+  // If we're in the marked view, refresh it
+  if (document.getElementById('marked-view').style.display !== 'none') {
+    viewMarkedQuestions();
+  }
+}
+
+buildGrid();
+buildAnswerGrid();
+updateMarkedQuestionsDisplay();
+history.pushState({ page: 'home' }, '');
+</script>
+</body>
+</html>

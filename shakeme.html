@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAKEme</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Oswald&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        button{
+            height: 100px;
+            width: 190px;
+           border-radius: 5px;
+            
+            border: 2px solid purple;
+            text-align: center;
+            color: rgb(255, 255, 255);
+            background-color: purple;
+            font-weight: bold;
+            font-size: 25px;
+            text-transform: capitalize;
+            font-family: "Fira Sans", sans-serif;
+            text-transform: capitalize;
+            
+            &:hover{
+                border: 2px solid red;
+                color:linearl-gradient(to right, #23322b, #feb47b);
+                color: black;
+                background-color: rgb(128, 26, 216);
+                box-shadow: rgba(41, 79, 117, 0.4) 0px 3px 6px, rgba(255, 255, 255, 0.4) 6px 6px 10px;
+                animation: shake 0.2s linear ;
+                
+            }
+        }
+        @keyframes shake
+        {
+            0%
+            {
+                rotate: 20deg;
+            }
+            50%
+            {
+                rotate: -20deg;
+            }
+            100%
+            {
+                rotate: -20deg;
+            }
+        }
+        body{
+           height: 100vh;
+           display: grid;
+           place-items: center;
+           background-color: black;
+           
+        }
+    </style>
+</head>
+<body>
+    <button type ="button">SHAKE ME</button>
+</body>
+</html>

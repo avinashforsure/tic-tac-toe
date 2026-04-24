@@ -1,0 +1,32 @@
+body{
+    background-image: url(8f1ab8b14a55720d6859620a6f596933.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+    
+}
+
+/* @keyframes mariorun{
+    0%{
+        translate: 0%;
+    }
+    100%{
+        translate:calc(100vw-200px);
+    }
+
+} */
+ .dom{
+    font-size: 100px;
+    font-style: italic;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+color: rgb(135, 78, 78)0, 8, 8;
+word-spacing: 10px;
+
+background-color: rgb(155, 79, 79);
+background:  linear-gradient(to right, #d0c7c7, #ffff00);
+text-align: center;
+    
+display: table;
+/* display: flex;
+justify-content: center; */
+margin: 0 auto;}
